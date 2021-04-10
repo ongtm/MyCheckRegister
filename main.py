@@ -4,6 +4,9 @@ from tkinter import VERTICAL, RIGHT, Y, LEFT, X, HORIZONTAL, BOTTOM, TOP, ttk
 
 class MainForm:
 
+
+
+
     # init method
     def __init__(self, root):
         # set root
@@ -32,16 +35,16 @@ class MainForm:
         mainframe = tk.Frame(self.root, bg="light grey", bd=10, width=int(csw-10), height=int(csh-10), relief="ridge")
         mainframe.place(width=int(csw-10), height=int(csh-10))
 
-        subframebottom = tk.Frame(mainframe, bg="light grey", bd=5, width=int(csw*.98), height=int((csh-10)*.14), relief="ridge")
-        subframebottom.place(in_=mainframe, relx=0, rely=.86)
+        subframebottom = tk.Frame(mainframe, bg="light grey", bd=5, width=int(csw*.98), height=int((csh-10)*.34), relief="ridge")
+        subframebottom.place(in_=mainframe, relx=0, rely=.66)
 
-        subframetop = tk.Frame(mainframe, bg="white", bd=5, width=int(csw*.98), height=int((csh-10)*.84), relief="ridge")
+        subframetop = tk.Frame(mainframe, bg="white", bd=5, width=int(csw*.98), height=int((csh-10)*.64), relief="ridge")
         subframetop.place(in_=mainframe, relx=0, rely=0)
 
-        subframetopleft = tk.Frame(subframetop, bg="white", bd=0, width=int(csw*.90), height=int((csh-15)), relief="flat")
+        subframetopleft = tk.Frame(subframetop, bg="light blue", bd=0, width=int(csw*.90), height=int((csh-15)), relief="flat")
         subframetopleft.place(in_=subframetop, relx=0, rely=0)
 
-        subframetopright = tk.Frame(subframetop, bg="light grey", bd=1, width=int(csw*.1), height=int((csh-15)), relief="flat")
+        subframetopright = tk.Frame(subframetop, bg="light green", bd=1, width=int(csw*.1), height=int((csh-15)), relief="flat")
         subframetopright.place(in_=subframetop, relx=.99, rely=.04)
 # ------------------------------------------------------------------------------------------------------------------------------------#
          # Vertical Scroll bar
@@ -49,24 +52,27 @@ class MainForm:
         scroll_y.pack(side=LEFT, fill=Y)
 # ------------------------------------------------------------------------------------------------------------------------------------#
         # setting up buttons for bottom frame
-        btnAddNew = tk.Button(subframebottom, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
+        btnAddNew = tk.Button(subframebottom, command=self.buttonClickAddNew,  bg="snow", activebackground="light blue", fg="black", height=1, width=20,
                               pady=1, padx=1, text="Add New Transaction", font=('Calibri Light', 16, 'bold'), relief='raised')
-        btnAddNew.place(in_=subframebottom, relx=.12, rely=.05)
+        btnAddNew.place(in_=subframebottom, relx=.01, rely=.05)
 
-        btnEdit = tk.Button(subframebottom, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
+        btnEdit = tk.Button(subframebottom, command=self.buttonClickEdit, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
                             pady=1, padx=1, text="Edit Transaction", font=('Calibri Light', 16, 'bold'),
                             relief='raised')
-        btnEdit.place(in_=subframebottom, relx=.32, rely=.05)
+        btnEdit.place(in_=subframebottom, relx=.01, rely=.30)
 
-        btnDelete = tk.Button(subframebottom, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
+        btnDelete = tk.Button(subframebottom, command=self.buttonClickDelete, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
                             pady=1, padx=1, text="Delete Transaction", font=('Calibri Light', 16, 'bold'),
                             relief='raised')
-        btnDelete.place(in_=subframebottom, relx=.52, rely=.05)
+        btnDelete.place(in_=subframebottom, relx=.01, rely=.55)
 
-        btnExit = tk.Button(subframebottom, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
+        btnExit = tk.Button(subframebottom, command=self.buttonClickExit, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
                             pady=1, padx=1, text="Exit Check Register", font=('Calibri Light', 16, 'bold'),
                             relief='raised')
-        btnExit.place(in_=subframebottom, relx=.72, rely=.05)
+        btnExit.place(in_=subframebottom, relx=.01, rely=.8)
+# ------------------------------------------------------------------------------------------------------------------------------------#
+        # set up labels and text boxes for data entry
+        # lblDescription = tk.Label(subframebottom)
 # ------------------------------------------------------------------------------------------------------------------------------------#
         # setting up subframetopleft to support the list of transactions (Treeview)
         # rewrite this is pull from mysql
@@ -95,12 +101,25 @@ class MainForm:
         mainTable_records.pack()
 # ------------------------------------------------------------------------------------------------------------------------------------#
         # Inserting temp records to test how this looks
-        # Rewrite this to pull from mysql
+        # Rewrite this to pull from mysql for existing transactions
 
         mainTable_records.insert('', 'end', values=("Deposit", "4/1/2020", "Starting Deposit", "", "Yes", "100.00", "100.00"))
         mainTable_records.insert('', 'end', values=("ACH", "4/10/2020", "McDonalds", "1.00", "Yes", "", "99.00"))
 
         # need to write code here for
+
+    def buttonClickAddNew(self):
+        print("Add New Transaction")
+
+    def buttonClickEdit(self):
+        print("Edit Selected Transaction")
+
+    def buttonClickDelete(self):
+        print("Deleting Selected Transaction")
+
+    def buttonClickExit(self):
+        print("Exit My Check Register")
+
 
 
 root = tk.Tk()
@@ -109,3 +128,7 @@ root.mainloop()
 
 # print(root.curscreenwidth)
 # print(root.curscreenheight)
+
+
+
+
