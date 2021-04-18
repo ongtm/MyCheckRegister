@@ -1,0 +1,179 @@
+WindowManager:
+    LoginScreen:
+    TransactionScreen:
+    EditScreen:
+
+<Button>
+    font_size:10
+    size_hint:0.25, 0.2
+    color:1,1,1,1
+    background_color: 0/255, 128/255, 1, 1
+
+<TextInput>
+    size_hint:.075, .1
+
+
+<Label>
+    font_size:15
+    size_hint:.4,.1
+    #background_color:0,0,0,1
+
+<TransactionLabel@Label>
+    font_size:12
+    halign:'left'
+
+<BackgroundColor@Widget>
+    background_color:1,1,1,1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<BackgroundLabel@Label+BackgroundColor>
+    background_color:0,0,0,1
+
+
+<LoginScreen>:
+    name:"login"
+
+    FloatLayout:
+        BackgroundLabel:
+            text:"Please enter your pin"
+            pos_hint:{'x':.3, 'y':.75}
+            halign:'center'
+            valign:'middle'
+
+        Label:
+            id:wpassword
+            text:"Error Message Here"
+            pos_hint:{'x':.3, 'y':.4}
+            halign:'center'
+            valign:'middle'
+
+        TextInput:
+            id:input1
+            multiline:False
+            pos_hint:{'x':.3,'y':.6}
+
+        TextInput:
+            id:input2
+            multiline:False
+            pos_hint:{'x':.40,'y':.6}
+
+        TextInput:
+            id:input3
+            multiline:False
+            pos_hint:{'x':.50,'y':.6}
+
+        TextInput:
+            id:input4
+            multiline:False
+            pos_hint:{'x':.60,'y':.6}
+
+        Button:
+            text:"Submit"
+            pos_hint:{'x':.3,'y':.2}
+            on_release:
+                app.root.current = "transactions" #if input1.text  == "1" and input2.text == "2" and input3.text == "3"  and input4.text == "4" else "login"
+                root.manager.transition.direction = "left"
+
+
+<TransactionScreen>:
+    name:"transactions"
+
+    BoxLayout:
+        orientation:'vertical'
+
+        BoxLayout:
+            size_hint:1,.05
+            orientation:'horizontal'
+
+            TransactionLabel:
+                text:"NUMBER/CODE"
+                size_hint:.2,.1
+                font_size:12
+
+
+            TransactionLabel:
+                text:"DATE"
+                size_hint:.15,.1
+                #font_size:12
+
+            TransactionLabel:
+                text:"TRANSACTION DESCRIPTION"
+                size_hint:.35,.1
+                #font_size:12
+
+            TransactionLabel:
+                text:"PAYMENT/FEE"
+                size_hint:.3,.1
+                #font_size:12
+
+            TransactionLabel:
+                text:"CLEARED"
+                size_hint:.25,.1
+                #font_size:12
+
+            TransactionLabel:
+                text:"DEPOSIT/REFUND"
+                size_hint:.3,.1
+                #font_size:12
+
+            TransactionLabel:
+                text:"BALANCE"
+                size_hint:.3,.1
+                #font_size:12
+
+        BoxLayout:
+            size_hint:1,1
+            RecycleView:
+                viewclass:'Label'
+                #data:root.data
+                SelectableRecycleGridLayout:
+                    cols: 7
+                    default_size: None, dp(26)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    multiselect: True
+                    touch_multiselect: True
+
+        BoxLayout:
+            size_hint:1,1
+            orientation:'horizontal'
+            Button:
+                id:btnNew
+                text:"New Transaction"
+                size_hint:.2,.2
+
+            Button:
+                id:btnEdit
+                text:"Edit Transaction"
+                size_hint:.2,.2
+                on_release:
+                    app.root.current = "edit"
+                    root.manager.transition.direction = "up"
+
+            Button:
+                id:btnDelete
+                text:"Delete Transaction"
+                size_hint:.2,.2
+
+            Button:
+                id:btnExit
+                text:"Exit Application"
+                size_hint:.2,.2
+                on_release:
+                    app.root.current = "login"
+                    root.manager.transition.direction = "right"
+
+
+<EditScreen>
+    name:"edit"
+    Button:
+        text:"go back"
+        on_release:
+            app.root.current="transactions"
+            root.manager.transition.direction = "down"

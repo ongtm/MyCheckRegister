@@ -1,134 +1,87 @@
-import tkinter as tk
-from tkinter import VERTICAL, RIGHT, Y, LEFT, X, HORIZONTAL, BOTTOM, TOP, ttk
-
-
-class MainForm:
-
-
-
-
-    # init method
-    def __init__(self, root):
-        # set root
-        self.root = root
-
-        # set application name
-        self.root.title("My Check Register")
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # getting dimensions of current screen
-        self.root.csw = root.winfo_screenwidth()
-        self.root.csh = root.winfo_screenheight()
-
-        # setting dimensions of application window
-        # syntax here is (width x height + x + y)
-        csw = int(self.root.csw * .75)
-        csh = int(self.root.csh * .75)
-        xw = int(self.root.csw * .1)
-        yh = int(self.root.csh * .1)
-
-        self.root.geometry(f'{csw}x{csh}+{xw}+{yh}')
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # setting up frames for check register
-        # syntax is (parent window, background (bg), border (bd), cursor, width, height, relief, highlightbackground,
-        # highlightcolor, highlightthickness)
-
-        mainframe = tk.Frame(self.root, bg="light grey", bd=10, width=int(csw-10), height=int(csh-10), relief="ridge")
-        mainframe.place(width=int(csw-10), height=int(csh-10))
-
-        subframebottom = tk.Frame(mainframe, bg="light grey", bd=5, width=int(csw*.98), height=int((csh-10)*.34), relief="ridge")
-        subframebottom.place(in_=mainframe, relx=0, rely=.66)
-
-        subframetop = tk.Frame(mainframe, bg="white", bd=5, width=int(csw*.98), height=int((csh-10)*.64), relief="ridge")
-        subframetop.place(in_=mainframe, relx=0, rely=0)
-
-        subframetopleft = tk.Frame(subframetop, bg="light blue", bd=0, width=int(csw*.90), height=int((csh-15)), relief="flat")
-        subframetopleft.place(in_=subframetop, relx=0, rely=0)
-
-        subframetopright = tk.Frame(subframetop, bg="light green", bd=1, width=int(csw*.1), height=int((csh-15)), relief="flat")
-        subframetopright.place(in_=subframetop, relx=.99, rely=.04)
-# ------------------------------------------------------------------------------------------------------------------------------------#
-         # Vertical Scroll bar
-        scroll_y = tk.Scrollbar(subframetopright, orient=VERTICAL)
-        scroll_y.pack(side=LEFT, fill=Y)
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # setting up buttons for bottom frame
-        btnAddNew = tk.Button(subframebottom, command=self.buttonClickAddNew,  bg="snow", activebackground="light blue", fg="black", height=1, width=20,
-                              pady=1, padx=1, text="Add New Transaction", font=('Calibri Light', 16, 'bold'), relief='raised')
-        btnAddNew.place(in_=subframebottom, relx=.01, rely=.05)
-
-        btnEdit = tk.Button(subframebottom, command=self.buttonClickEdit, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
-                            pady=1, padx=1, text="Edit Transaction", font=('Calibri Light', 16, 'bold'),
-                            relief='raised')
-        btnEdit.place(in_=subframebottom, relx=.01, rely=.30)
-
-        btnDelete = tk.Button(subframebottom, command=self.buttonClickDelete, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
-                            pady=1, padx=1, text="Delete Transaction", font=('Calibri Light', 16, 'bold'),
-                            relief='raised')
-        btnDelete.place(in_=subframebottom, relx=.01, rely=.55)
-
-        btnExit = tk.Button(subframebottom, command=self.buttonClickExit, bg="snow", activebackground="light blue", fg="black", height=1, width=20,
-                            pady=1, padx=1, text="Exit Check Register", font=('Calibri Light', 16, 'bold'),
-                            relief='raised')
-        btnExit.place(in_=subframebottom, relx=.01, rely=.8)
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # set up labels and text boxes for data entry
-        # lblDescription = tk.Label(subframebottom)
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # setting up subframetopleft to support the list of transactions (Treeview)
-        # rewrite this is pull from mysql
-
-        mainTable_records = ttk.Treeview(subframetopleft, columns=("NumberCode", "Date", "TransactionDescription", "PayFeeWith", "Cleared", "DepCredRef", "Balance"), yscrollcommand=scroll_y.set)
-
-        mainTable_records.heading("#1", text="NUMBER/CODE")
-        mainTable_records.heading("#2", text="DATE")
-        mainTable_records.heading("#3", text="TRANSACTION DESCRIPTION")
-        mainTable_records.heading("#4", text="PAYMENT/FEE/WITHDRAWAL")
-        mainTable_records.heading("#5", text="CLEARED")
-        mainTable_records.heading("#6", text="DEPOSIT/CREDIT/REFUND")
-        mainTable_records.heading("#7", text="BALANCE")
-
-        mainTable_records.column("#0", stretch=tk.NO, width=0)
-        mainTable_records.column("#1", stretch=tk.YES)
-        mainTable_records.column("#2", stretch=tk.YES)
-        mainTable_records.column("#3", stretch=tk.YES)
-        mainTable_records.column("#4", stretch=tk.YES)
-        mainTable_records.column("#5", stretch=tk.YES)
-        mainTable_records.column("#6", stretch=tk.YES)
-        mainTable_records.column("#7", stretch=tk.YES)
-
-        mainTable_records.place(in_=subframetopleft, relx=0, rely=0)
-
-        mainTable_records.pack()
-# ------------------------------------------------------------------------------------------------------------------------------------#
-        # Inserting temp records to test how this looks
-        # Rewrite this to pull from mysql for existing transactions
-
-        mainTable_records.insert('', 'end', values=("Deposit", "4/1/2020", "Starting Deposit", "", "Yes", "100.00", "100.00"))
-        mainTable_records.insert('', 'end', values=("ACH", "4/10/2020", "McDonalds", "1.00", "Yes", "", "99.00"))
-
-        # need to write code here for
-
-    def buttonClickAddNew(self):
-        print("Add New Transaction")
-
-    def buttonClickEdit(self):
-        print("Edit Selected Transaction")
-
-    def buttonClickDelete(self):
-        print("Deleting Selected Transaction")
-
-    def buttonClickExit(self):
-        print("Exit My Check Register")
-
-
-
-root = tk.Tk()
-application = MainForm(root)
-root.mainloop()
-
-# print(root.curscreenwidth)
-# print(root.curscreenheight)
+from kivy.app import App
+from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.recyclegridlayout import RecycleGridLayout
+from kivy.uix.recycleview.layout import LayoutSelectionBehavior
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.lang import Builder
+import mysql.connector
+from mysql.connector import Connect, Error
+from getpass import getpass
 
 
 
 
+class LoginScreen(Screen):
+
+    def __init__(self):
+        self.checkForDatabase()
+
+    def checkForDatabase(self):
+        conn = ""
+        try:
+            mysql.connector.connect(host='localhost', database='myCheckRegisterDB')
+            if conn.is_connected():
+                conn.close()
+        except:
+            newdb = mysql.connector.connect(host='localhost')
+            thiscursor = newdb.cursor()
+            thiscursor.execute("CREATE DATABASE myCheckRegisterDB")
+            thiscursor.execute("CREATE TABLE tblUsers (name VARCHAR(4), inputOne INT(1), inputTwo INT(1), inputThree INT(1), inputFour INT(1)")
+            thiscursor.execute("INSERT INTO tblUsers (name, inputOne, inputTwo, inputThree, inputFour) VALUES ('User','1', '2', '3' ,'4')")
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
+    #pass
+
+
+class TransactionScreen(Screen):
+
+
+
+
+    def getTransactions(self):
+        pass
+        # conn = ""
+        #try:
+        #    conn = mysql.connector.connect(host='localhost', database='python_sql')
+        #    if conn.is_connected():
+        #        print('Connected to database')
+        #except Error as e:
+        #    print(e)
+
+        #finally:
+        #    if conn is not None and conn.is_connected():
+        #        conn.close()
+
+    def __init__(self, **kwargs):
+        super(TransactionScreen, self).__init__(**kwargs)
+        self.getTransactions()
+        #self.data = [{'text': str(x)} for x in range(100)]
+
+
+class EditScreen(Screen):
+    pass
+
+
+class WindowManager(ScreenManager):
+    pass
+
+
+class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, RecycleGridLayout):
+    pass
+
+
+kv = Builder.load_file("my.kv")
+
+
+
+
+class MyApp(App):
+    def build(self):
+       return kv
+
+
+
+
+if __name__ == '__main__':
+    MyApp().run()
