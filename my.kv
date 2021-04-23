@@ -1,5 +1,7 @@
 WindowManager:
+    StartScreen:
     LoginScreen:
+    NewUserScreen:
     TransactionScreen:
     EditScreen:
 
@@ -34,6 +36,118 @@ WindowManager:
 <BackgroundLabel@Label+BackgroundColor>
     background_color:0,0,0,1
 
+<StartScreen>:
+    name:"start"
+
+    FloatLayout:
+        BackgroundLabel:
+            text:"My Check Register"
+            pos_hint:{'x':.3, 'y':.8}
+
+        Button:
+            id:newUser
+            text:"New User"
+            pos_hint:{'x':.3, 'y':.3}
+            on_release:
+                app.root.current = "newuser"
+                root.manager.transition.direction ="left"
+        Button:
+            id:login
+            text:"Login"
+            pos_hint:{'x':.3, 'y':.6}
+            on_release:
+                app.root.current = "login"
+                root.manager.transition.direction = "left"
+
+<NewUserScreen>:
+    name:"newuser"
+    btnNewUserSubmit:btnNewUserSubmit
+    input1:input1
+    input2:input2
+    input3:input3
+    input4:input4
+    input5:input5
+    input6:input6
+    input7:input7
+    input8:input8
+    nuErrorLabel:nuErrorLabel
+
+    FloatLayout:
+        BackgroundLabel:
+            id:nuErrorLabel
+            text:"I Am here"
+            color:0,0,0,1
+            pos_hint:{'x':.3, 'y':.35}
+            halign:'center'
+            valign:'middle'
+
+        BackgroundLabel:
+            text:"Please enter a Pin"
+            pos_hint:{'x':.3, 'y':.85}
+            halign:'center'
+            valign:'middle'
+
+        TextInput:
+            id:input1
+            multiline:False
+            pos_hint:{'x':.3,'y':.75}
+
+        TextInput:
+            id:input2
+            multiline:False
+            pos_hint:{'x':.40,'y':.75}
+
+        TextInput:
+            id:input3
+            multiline:False
+            pos_hint:{'x':.50,'y':.75}
+
+        TextInput:
+            id:input4
+            multiline:False
+            pos_hint:{'x':.60,'y':.75}
+
+        BackgroundLabel:
+            text:"Please enter renter the Pin"
+            pos_hint:{'x':.3, 'y':.55}
+            halign:'center'
+            valign:'middle'
+
+        TextInput:
+            id:input5
+            multiline:False
+            pos_hint:{'x':.3,'y':.45}
+
+        TextInput:
+            id:input6
+            multiline:False
+            pos_hint:{'x':.40,'y':.45}
+
+        TextInput:
+            id:input7
+            multiline:False
+            pos_hint:{'x':.50,'y':.45}
+
+        TextInput:
+            id:input8
+            multiline:False
+            pos_hint:{'x':.60,'y':.45}
+
+        Button:
+            id:btnNewUserSubmit
+            text:"Submit"
+            pos_hint:{'x':.3,'y':.2}
+            on_release:
+                # app.root.current = "transactions" if input1.text  == input5.text and input2.text == input6.text and input3.text == input7.text  and input4.text == input8.text else "newuser"
+                root.btnNUS()
+                root.manager.transition.direction = "left"
+
+        Button:
+            text:"Cancel"
+            pos_hint:{'x':.3, 'y':.025}
+            on_release:
+                app.root.current = "start"
+                root.manager.transition.direction = "right"
 
 <LoginScreen>:
     name:"login"
@@ -78,6 +192,13 @@ WindowManager:
             on_release:
                 app.root.current = "transactions" #if input1.text  == "1" and input2.text == "2" and input3.text == "3"  and input4.text == "4" else "login"
                 root.manager.transition.direction = "left"
+        Button:
+            text:"Cancel"
+            pos_hint:{'x':.3, 'y':.025}
+            on_release:
+                app.root.current = "start"
+                root.manager.transition.direction = "right"
+
 
 
 <TransactionScreen>:
