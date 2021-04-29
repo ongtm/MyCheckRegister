@@ -6,9 +6,10 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 import mysql.connector
-# from mysql.connector import Connect, Error
-# from getpass import getpass
 from kivy.properties import ObjectProperty
+from kivy.uix.textinput import TextInput
+
+
 
 try:
   mydb = mysql.connector.connect(host="localhost", user="general", password="dbms")
@@ -18,7 +19,8 @@ except:
   print("Database exists")
 
 try:
-    mycursor.execute("CREATE TABLE tblUser (name VARCHAR, pinOne INT(1), pinTwo INT(1), pinThree(1), pinFour(1) ")
+    mycursor.execute("CREATE TABLE tblUser (name VARCHAR, pin(4) ")
+    #mycursor.execute("DROP TABLE tblUser")
 except:
   print("tblUser Exists")
 
@@ -38,47 +40,107 @@ class NewUserScreen(Screen):
     nuErrorLabel = ObjectProperty(None)
 
     def btnNUS(self):
-        if self.reValidation() is False:
+        if self.lenValidation() is False:
             self.nuErrorLabel.color = 1, 0, 0, 1
-            self.nuErrorLabel.text = "Invalided character entered"
-            exit
-
-        if self.checkInputNulls() is True and self.compareInputs() is True:
-            self.nuErrorLabel.color = 0, 0, 0, 1
-            self.setUserPin()
+            self.nuErrorLabel.text = "Pin can only be 4 digits"
+            return 0
 
         elif self.checkInputNulls() is True and self.compareInputs() is False:
             self.nuErrorLabel.text = "Pins do not match"
             self.nuErrorLabel.color = 1, 0, 0, 1
+            return 0
+
+        elif self.checkInputNulls() is True and self.compareInputs() is True:
+            self.nuErrorLabel.color = 0, 0, 0, 1
+            self.nuErrorLabel.text = "0"
+            self.setUserPin()
+            self.getUserPin()
+            return 0
+
         else:
             self.nuErrorLabel.text = "Please enter a value in each box"
             self.nuErrorLabel.color = 1, 0, 0, 1
-
-    def reValidation(self):
-        #Need to watch a video on this
-        return True
+            return 0
 
     def compareInputs(self):
 
-        if self.input1.text == self.input5.text and self.input2.text == self.input6.text and self.input3.text == self.input7.text and self.input4.text == self.input8.text:
+        if self.input1.text == self.input2.text:
             return True
         else:
             return False
-
 
     def checkInputNulls(self):
-        if self.input1.text != '' and self.input2.text != '' and self.input3.text != '' and self.input4.text != '' and self.input5.text != '' and self.input6.text != '' and self.input7.text != '' and self.input8.text != '':
+        if self.input1.text != '' and self.input2.text != '':
             return True
         else:
             return False
 
+    def lenValidation(self):
+        if len(self.input1.text) != 4 or len(self.input2.text) != 4:
+            return False
+        else:
+            return True
+
     def setUserPin(self):
-        #Add Pin to database
-        pass
+        try:
+            mycursor.execute("INSERT INTO tblUsers (name, pin) VALUES (thisUser, " + self.input1.text + ")")
+        except:
+            print("Set fails")
+
+    def getUserPin(self):
+        try:
+            mycursor.execute("SELECT pin FROM tblUsers WHERE user = 'thisUser'")
+            thisPin = mycursor.fetchall()
+            print(thisPin)
+        except:
+            print("Get fails")
+
 
 class LoginScreen(Screen):
-    def __init__(self, **kwargs):
-        super(LoginScreen, self).__init__(**kwargs)
+    #def __init__(self, **kwargs):
+    #    super(LoginScreen, self).__init__(**kwargs)
+
+    def btnNUS(self):
+        if self.lenValidation() is False:
+            self.nuErrorLabel.color = 1, 0, 0, 1
+            self.nuErrorLabel.text = "Pin can only be 4 digits"
+            return 0
+
+        elif self.checkInputNulls() is True and self.compareInputs() is False:
+            self.nuErrorLabel.text = "Pins do not match"
+            self.nuErrorLabel.color = 1, 0, 0, 1
+            return 0
+
+        elif self.checkInputNulls() is True and self.compareInputs() is True:
+            self.nuErrorLabel.color = 0, 0, 0, 1
+            self.nuErrorLabel.text = "0"
+            #self.verifyPin()
+            return 1
+
+        else:
+            self.nuErrorLabel.text = "Please enter a value in each box"
+            self.nuErrorLabel.color = 1, 0, 0, 1
+            return 0
+
+    def compareInputs(self):
+
+        if self.input1.text == self.input2.text:
+            return True
+        else:
+            return False
+
+    def checkInputNulls(self):
+        if self.input1.text != '' and self.input2.text != '':
+            return True
+        else:
+            return False
+
+    def lenValidation(self):
+        if len(self.input1.text) != 4 or len(self.input2.text) != 4:
+            return False
+        else:
+            return True
+
 
 
 class TransactionScreen(Screen):
@@ -115,6 +177,23 @@ class WindowManager(ScreenManager):
 class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, RecycleGridLayout):
     pass
 
+
+class PinInput(TextInput):
+    #pat = re.compile(r'\D')
+
+    #def insert_text(self, substring, from_undo=False):
+    #    s = self.pat
+    #    print(s)
+
+        #return super(PinInput, self).insert_text(s, from_undo=from_undo)
+
+    pat = re.compile(r'\D')
+    def insert_text(self, substring, from_undo=False):
+        pat = self.pat
+
+        s = re.sub(pat, '', substring)
+
+        return super(PinInput, self).insert_text(s, from_undo=from_undo)
 
 
 kv = Builder.load_file("my.kv")
