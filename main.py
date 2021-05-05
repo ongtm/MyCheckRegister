@@ -6,33 +6,50 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 import mysql.connector
+from mysql.connector import errorcode
 from kivy.properties import ObjectProperty
 from kivy.uix.textinput import TextInput
 
 
 
-try:
-  mydb = mysql.connector.connect(host="localhost", user="general", password="dbms")
-  mycursor = mydb.cursor()
-  mycursor.execute("CREATE DATABASE dbTransactions")
-except:
-  print("Database exists")
 
-try:
-    mycursor.execute("CREATE TABLE tblUser (name VARCHAR, pin(4) ")
-    #mycursor.execute("DROP TABLE tblUser")
-except:
-  print("tblUser Exists")
 
-try:
-    mycursor.execute("CREATE TABLE tblTransactions (NumCode VARCHAR(10), TransDate DATETIME(6), TransDescription "
-                     "VARCHAR(255), PayFee DECIMAL(15,2), Cleared TINYINT(1) , DepCrd DECIMAL(15,2), Balance DECIMAL(15,2)")
-except:
-  print("tblTransactions exists")
+#def createMySQLTransactionsTable(mycursor):
+#    try:
+#        mycursor.execute("CREATE TABLE tblTransactions (NumCode VARCHAR(10), TransDate DATETIME(6), TransDescription "
+#                     "VARCHAR(255), PayFee DECIMAL(15,2), Cleared TINYINT(1) , DepCrd DECIMAL(15,2), Balance DECIMAL(15,2)")
+#    except:
+#        print("tblTransactions exists")
 
 class StartScreen(Screen):
-    #Check if user exists, if so move to login screen, if not show new user screen
-    pass
+    btnNewUser = ObjectProperty()
+
+    try:
+        mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+        mycursor = mydb.cursor()
+    except Exception as e:
+        print(e)
+
+    try:
+        mycursor.execute("CREATE DATABASE dbTransactions")
+    except Exception as e:
+        print(e)
+
+    try:
+        mycursor.execute("CREATE TABLE dbtransactions.tblUser (name VARCHAR (8), pin int(4))")
+    except mysql.connector.Error as err:
+        if err.errno == 1050:
+            # btnNewUser.opacity = 0
+            print("Hide button")
+
+        else:
+            print("WTF")
+
+    try:
+        mycursor.close()
+    except Exception as e:
+        print(e)
+
 
 
 class NewUserScreen(Screen):
@@ -53,8 +70,9 @@ class NewUserScreen(Screen):
         elif self.checkInputNulls() is True and self.compareInputs() is True:
             self.nuErrorLabel.color = 0, 0, 0, 1
             self.nuErrorLabel.text = "0"
+
             self.setUserPin()
-            self.getUserPin()
+
             return 0
 
         else:
@@ -82,64 +100,94 @@ class NewUserScreen(Screen):
             return True
 
     def setUserPin(self):
+
         try:
-            mycursor.execute("INSERT INTO tblUsers (name, pin) VALUES (thisUser, " + self.input1.text + ")")
-        except:
-            print("Set fails")
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
+
+            sqlQuery = "INSERT INTO dbtransactions.tblUser (name, pin) VALUES (%s, %s);"
+            data_user = ('mainuser', self.input1.text)
+
+            mycursor.execute(sqlQuery, data_user)
+            mydb.commit()
+        except Exception as e:
+            print(e)
+
+        try:
+            mycursor.close()
+        except Exception as e:
+            print(e)
 
     def getUserPin(self):
         try:
-            mycursor.execute("SELECT pin FROM tblUsers WHERE user = 'thisUser'")
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
+
+            sqlQuery = "SELECT * FROM dbtransactions.tblUser WHERE name = 'mainuser';"
+            mycursor.execute(sqlQuery)
             thisPin = mycursor.fetchall()
-            print(thisPin)
+            print("get succeeds")
         except:
             print("Get fails")
 
 
 class LoginScreen(Screen):
-    #def __init__(self, **kwargs):
-    #    super(LoginScreen, self).__init__(**kwargs)
+    btnLoginSubmit = ObjectProperty(None)
+    lsErrorLabel = ObjectProperty(None)
 
-    def btnNUS(self):
-        if self.lenValidation() is False:
-            self.nuErrorLabel.color = 1, 0, 0, 1
-            self.nuErrorLabel.text = "Pin can only be 4 digits"
+    def btnLSS(self):
+        if self.checkInputNulls() is False:
+            self.lsErrorLabel.text = "Please enter a Pin"
+            self.lsErrorLabel.color = 1, 0, 0, 1
             return 0
-
-        elif self.checkInputNulls() is True and self.compareInputs() is False:
-            self.nuErrorLabel.text = "Pins do not match"
-            self.nuErrorLabel.color = 1, 0, 0, 1
+        elif self.lenValidation() is False:
+            self.lsErrorLabel.color = 1, 0, 0, 1
+            self.lsErrorLabel.text = "Pin can only be 4 digits"
             return 0
-
-        elif self.checkInputNulls() is True and self.compareInputs() is True:
-            self.nuErrorLabel.color = 0, 0, 0, 1
-            self.nuErrorLabel.text = "0"
-            #self.verifyPin()
+        elif self.verifyPin() is True:
+            self.lsErrorLabel.text = "0"
+            self.lsErrorLabel.color = 0, 0, 0, 0
             return 1
-
         else:
-            self.nuErrorLabel.text = "Please enter a value in each box"
-            self.nuErrorLabel.color = 1, 0, 0, 1
+            self.lsErrorLabel.text = "Incorrect Pin"
+            self.lsErrorLabel.color = 1, 0, 0, 1
             return 0
-
-    def compareInputs(self):
-
-        if self.input1.text == self.input2.text:
-            return True
-        else:
-            return False
 
     def checkInputNulls(self):
-        if self.input1.text != '' and self.input2.text != '':
+        if self.input1.text != '':
             return True
         else:
             return False
 
     def lenValidation(self):
-        if len(self.input1.text) != 4 or len(self.input2.text) != 4:
+        if len(self.input1.text) != 4:
             return False
         else:
             return True
+
+    def verifyPin(self):
+
+        try:
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
+
+            sqlQuery = "SELECT pin FROM dbtransactions.tblUser WHERE name = 'mainuser';"
+            mycursor.execute(sqlQuery)
+
+            thisTuple = mycursor.fetchone()
+
+            mycursor.close()
+
+            thisPin = int(thisTuple[0])
+
+            if thisPin == int(self.input1.text):
+                return True
+            else:
+                return False
+
+        except Exception as e:
+            print(e)
+
 
 
 

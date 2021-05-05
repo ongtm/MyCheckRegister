@@ -38,6 +38,7 @@ WindowManager:
 
 <StartScreen>:
     name:"start"
+    btnNewUser:btnNewUser
 
     FloatLayout:
         BackgroundLabel:
@@ -45,12 +46,14 @@ WindowManager:
             pos_hint:{'x':.3, 'y':.8}
 
         Button:
-            id:newUser
+            id:btnNewUser
             text:"New User"
             pos_hint:{'x':.3, 'y':.3}
+            opacity:1
             on_release:
                 app.root.current = "newuser"
                 root.manager.transition.direction ="left"
+
         Button:
             id:login
             text:"Login"
@@ -61,6 +64,7 @@ WindowManager:
 
 <NewUserScreen>:
     name:"newuser"
+
     btnNewUserSubmit:btnNewUserSubmit
     input1:input1
     input2:input2
@@ -117,6 +121,10 @@ WindowManager:
 
 <LoginScreen>:
     name:"login"
+    btnLoginSubmit:btnLoginSubmit
+    input1:input1
+
+    lsErrorLabel:lsErrorLabel
 
     FloatLayout:
         BackgroundLabel:
@@ -126,7 +134,8 @@ WindowManager:
             valign:'middle'
 
         Label:
-            id:wpassword
+            id:lsErrorLabel
+            color:0,0,0,1
             text:"Error Message Here"
             pos_hint:{'x':.3, 'y':.4}
             halign:'center'
@@ -138,12 +147,15 @@ WindowManager:
             pos_hint:{'x':.4,'y':.6}
 
         Button:
+            id:btnLoginSubmit
             text:"Submit"
             pos_hint:{'x':.3,'y':.2}
             on_release:
-                app.root.current = "transactions" if input1.text  == "1" and input2.text == "2" and input3.text == "3"  and input4.text == "4" else "login"
+                root.btnLSS()
+                app.root.current = "transactions" if lsErrorLabel.text == "0" else "login"
                 root.manager.transition.direction = "left"
         Button:
+            id:btnLoginCancel
             text:"Cancel"
             pos_hint:{'x':.3, 'y':.025}
             on_release:
