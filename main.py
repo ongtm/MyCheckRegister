@@ -44,7 +44,10 @@ class StartScreen(Screen):
 
         else:
             print("WTF")
-
+    try:
+        mycursor.execute("CREATE TABLE dbtransactions.tblTransactions (numcode VARCHAR(10), date DATETIME, transdescr VARCHAR(255), payfee DECIMAL(15,2), cleared TINYINT(1), depref DECIMAL(15,2), balance DECIMAL(15,2));")
+    except Exception as e:
+        print(e)
     try:
         mycursor.close()
     except Exception as e:
@@ -125,7 +128,7 @@ class NewUserScreen(Screen):
 
             sqlQuery = "SELECT * FROM dbtransactions.tblUser WHERE name = 'mainuser';"
             mycursor.execute(sqlQuery)
-            thisPin = mycursor.fetchall()
+            thisPin = mycursor.fetchone()
             print("get succeeds")
         except:
             print("Get fails")
@@ -196,22 +199,42 @@ class TransactionScreen(Screen):
 
     def getTransactions(self):
         pass
-        # conn = ""
-        #try:
-        #    conn = mysql.connector.connect(host='localhost', database='python_sql')
-        #    if conn.is_connected():
-        #        print('Connected to database')
-        #except Error as e:
-        #    print(e)
 
-        #finally:
-        #    if conn is not None and conn.is_connected():
-        #        conn.close()
+        try:
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
+
+            sqlQuery = "SELECT pin FROM dbtransactions.tblUser WHERE name = 'mainuser';"
+
+            mycursor.execute(sqlQuery)
+
+            thisTuple = mycursor.fetchall()
+
+            mycursor.close()
+
+        except Exception as e:
+            print(e)
 
     def __init__(self, **kwargs):
         super(TransactionScreen, self).__init__(**kwargs)
+        self.insertDummyTransactions()
         self.getTransactions()
         #self.data = [{'text': str(x)} for x in range(100)]
+
+    def insertDummyTransactions(self):
+        try:
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
+
+            sqlQuery = "INSERT INTO dbtransactions.tblTransactions (numcode, date, transdescr, payfee, cleared, depref, balance) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+
+            data_transaction = ('atm', '2021-1-1', 'testing_starting balance', '0', '1', '0', '1000')
+            mycursor.execute(sqlQuery, data_transaction)
+
+            mydb.commit()
+            print("transaction added?")
+        except Exception as e:
+            print(e)
 
 
 class EditScreen(Screen):
@@ -227,13 +250,6 @@ class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, Recycl
 
 
 class PinInput(TextInput):
-    #pat = re.compile(r'\D')
-
-    #def insert_text(self, substring, from_undo=False):
-    #    s = self.pat
-    #    print(s)
-
-        #return super(PinInput, self).insert_text(s, from_undo=from_undo)
 
     pat = re.compile(r'\D')
     def insert_text(self, substring, from_undo=False):
@@ -244,15 +260,16 @@ class PinInput(TextInput):
         return super(PinInput, self).insert_text(s, from_undo=from_undo)
 
 
-kv = Builder.load_file("my.kv")
+#kv = Builder.load_file("my.kv")
 
 
 class MyApp(App):
-    def build(self):
-       return kv
+    pass
+    #def build(self):
+    #   return kv
 
 
 
 
 if __name__ == '__main__':
-    MyApp().run()
+   MyApp().run()
