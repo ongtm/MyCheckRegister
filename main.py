@@ -1,25 +1,20 @@
 import re
 from kivy.app import App
 from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recyclegridlayout import RecycleGridLayout
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 import mysql.connector
 from mysql.connector import errorcode
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.textinput import TextInput
 
 
 
 
 
-#def createMySQLTransactionsTable(mycursor):
-#    try:
-#        mycursor.execute("CREATE TABLE tblTransactions (NumCode VARCHAR(10), TransDate DATETIME(6), TransDescription "
-#                     "VARCHAR(255), PayFee DECIMAL(15,2), Cleared TINYINT(1) , DepCrd DECIMAL(15,2), Balance DECIMAL(15,2)")
-#    except:
-#        print("tblTransactions exists")
 
 class StartScreen(Screen):
     btnNewUser = ObjectProperty()
@@ -36,16 +31,16 @@ class StartScreen(Screen):
         print(e)
 
     try:
-        mycursor.execute("CREATE TABLE dbtransactions.tblUser (name VARCHAR (8), pin int(4))")
+        mycursor.execute("CREATE TABLE dbtransactions.tblUser (userID int NOT NULL AUTO_INCREMENT, name VARCHAR (8), pin int(4), PRIMARY KEY(userID))")
     except mysql.connector.Error as err:
         if err.errno == 1050:
             # btnNewUser.opacity = 0
             print("Hide button")
 
         else:
-            print("WTF")
+            print(err)
     try:
-        mycursor.execute("CREATE TABLE dbtransactions.tblTransactions (numcode VARCHAR(10), date DATETIME, transdescr VARCHAR(255), payfee DECIMAL(15,2), cleared TINYINT(1), depref DECIMAL(15,2), balance DECIMAL(15,2));")
+        mycursor.execute("CREATE TABLE dbtransactions.tblTransactions (transID int NOT NULL AUTO_INCREMENT, numcode VARCHAR(10), date DATETIME, transdescr VARCHAR(255), payfee DECIMAL(15,2), cleared TINYINT(1), depref DECIMAL(15,2), balance DECIMAL(15,2), PRIMARY KEY (transID))")
     except Exception as e:
         print(e)
     try:
@@ -126,7 +121,7 @@ class NewUserScreen(Screen):
             mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
             mycursor = mydb.cursor()
 
-            sqlQuery = "SELECT * FROM dbtransactions.tblUser WHERE name = 'mainuser';"
+            sqlQuery = "SELECT * FROM dbtransactions.tblUser WHERE name = 'mainuser'"
             mycursor.execute(sqlQuery)
             thisPin = mycursor.fetchone()
             print("get succeeds")
@@ -174,7 +169,7 @@ class LoginScreen(Screen):
             mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
             mycursor = mydb.cursor()
 
-            sqlQuery = "SELECT pin FROM dbtransactions.tblUser WHERE name = 'mainuser';"
+            sqlQuery = "SELECT pin FROM dbtransactions.tblUser WHERE name = 'mainuser'"
             mycursor.execute(sqlQuery)
 
             thisTuple = mycursor.fetchone()
@@ -195,47 +190,21 @@ class LoginScreen(Screen):
 
 
 class TransactionScreen(Screen):
+#    def insertDummyTransactions(self):
+#        try:
+#            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+#            mycursor = mydb.cursor()
 
+#            sqlQuery = "INSERT INTO dbtransactions.tblTransactions (numcode, date, transdescr, payfee, cleared, depref, balance) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
-    def getTransactions(self):
-        pass
+#            data_transaction = ('atm', '2021-1-1', 'testing_starting balance', '0', '1', '0', '1000')
+#            mycursor.execute(sqlQuery, data_transaction)
 
-        try:
-            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
-            mycursor = mydb.cursor()
-
-            sqlQuery = "SELECT pin FROM dbtransactions.tblUser WHERE name = 'mainuser';"
-
-            mycursor.execute(sqlQuery)
-
-            thisTuple = mycursor.fetchall()
-
-            mycursor.close()
-
-        except Exception as e:
-            print(e)
-
-    def __init__(self, **kwargs):
-        super(TransactionScreen, self).__init__(**kwargs)
-        self.insertDummyTransactions()
-        self.getTransactions()
-        #self.data = [{'text': str(x)} for x in range(100)]
-
-    def insertDummyTransactions(self):
-        try:
-            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
-            mycursor = mydb.cursor()
-
-            sqlQuery = "INSERT INTO dbtransactions.tblTransactions (numcode, date, transdescr, payfee, cleared, depref, balance) VALUES (%s, %s, %s, %s, %s, %s, %s);"
-
-            data_transaction = ('atm', '2021-1-1', 'testing_starting balance', '0', '1', '0', '1000')
-            mycursor.execute(sqlQuery, data_transaction)
-
-            mydb.commit()
-            print("transaction added?")
-        except Exception as e:
-            print(e)
-
+#            mydb.commit()
+#            print("transaction added?")
+#        except Exception as e:
+#            print(e)
+    pass
 
 class EditScreen(Screen):
     pass
@@ -247,6 +216,50 @@ class WindowManager(ScreenManager):
 
 class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, RecycleGridLayout):
     pass
+
+
+class RV(SelectableRecycleGridLayout):
+    transID_items = ListProperty([])
+    numcode_items = ListProperty([])
+    date_items = ListProperty([])
+    transdesc_items = ListProperty([])
+    payfee_items = ListProperty([])
+    cleared_items = ListProperty([])
+    depref_items = ListProperty([])
+    balance_items = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super(RV, self).__init__(**kwargs)
+        self.getTransactions()
+
+    def getTransactions(self):
+        try:
+            #mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            #mycursor = mydb.cursor()
+
+            #sqlQuery = "SELECT * FROM dbtransactions.tblTransactions"
+
+            #mycursor.execute(sqlQuery)
+
+            #thisTuple = mycursor.fetchall()
+
+            #mycursor.close()
+            #self.data = thisTuple
+            self.ids.rv_transactions = [{'text': str(x)} for x in range(10)]
+            print("I RAN")
+
+            #for row in thisTuple:
+            #    self.transID_items.append(row[0])
+            #    self.numcode_items.append(row[1])
+            #    self.date_items.append(row[2])
+            #    self.transdesc_items.append(row[3])
+            #    self.payfee_items.append(row[4])
+            #    self.cleared_items.append(row[5])
+            #    self.depref_items.append(row[6])
+            #    self.balance_items.append(row[7])
+
+        except Exception as e:
+            print(e)
 
 
 class PinInput(TextInput):

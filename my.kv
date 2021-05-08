@@ -161,10 +161,19 @@ WindowManager:
                 app.root.current = "start"
                 root.manager.transition.direction = "right"
 
-
+#<RV>:
+#    SelectableRecycleGridLayout:
+#        cols: 8
+#        default_size: None, dp(26)
+#        default_size_hint: 1, None
+#        size_hint_y: None
+#        height: self.minimum_height
+#        multiselect: True
+#        touch_multiselect: True
 
 <TransactionScreen>:
     name:"transactions"
+    rv_transactions:rv_transactions
 
     BoxLayout:
         orientation:'vertical'
@@ -209,19 +218,19 @@ WindowManager:
                 size_hint:.3,.1
                 #font_size:12
 
-        BoxLayout:
-            size_hint:1,1
-            RecycleView:
-                viewclass:'Label'
-                #data:root.data
-                SelectableRecycleGridLayout:
-                    cols: 7
-                    default_size: None, dp(26)
-                    default_size_hint: 1, None
-                    size_hint_y: None
-                    height: self.minimum_height
-                    multiselect: True
-                    touch_multiselect: True
+        #BoxLayout:
+            #size_hint:1,1
+        RecycleView:
+            id:rv_transactions
+            cols: 8
+            default_size: None, dp(26)
+            default_size_hint: 1, None
+            size_hint_y: None
+            #height: self.minimum_height
+            multiselect: True
+            touch_multiselect: True
+
+
 
         BoxLayout:
             size_hint:1,1
