@@ -2,7 +2,10 @@ import re
 from kivy.app import App
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recyclegridlayout import RecycleGridLayout
+from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
@@ -10,6 +13,7 @@ import mysql.connector
 from mysql.connector import errorcode
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.textinput import TextInput
+from kivy.properties import BooleanProperty
 
 
 
@@ -217,8 +221,10 @@ class WindowManager(ScreenManager):
 class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, RecycleGridLayout):
     pass
 
+class SelectableLabel(RecycleDataViewBehavior, Label):
+    pass
 
-class RV(SelectableRecycleGridLayout):
+class RV(RecycleView):
     transID_items = ListProperty([])
     numcode_items = ListProperty([])
     date_items = ListProperty([])
@@ -231,32 +237,33 @@ class RV(SelectableRecycleGridLayout):
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
         self.getTransactions()
+        #self.data = [{'text': str(x)} for x in range(10)]
 
     def getTransactions(self):
         try:
-            #mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
-            #mycursor = mydb.cursor()
+            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
+            mycursor = mydb.cursor()
 
-            #sqlQuery = "SELECT * FROM dbtransactions.tblTransactions"
+            sqlQuery = "SELECT * FROM dbtransactions.tblTransactions"
 
-            #mycursor.execute(sqlQuery)
+            mycursor.execute(sqlQuery)
 
-            #thisTuple = mycursor.fetchall()
+            thisTuple = mycursor.fetchall()
 
-            #mycursor.close()
-            #self.data = thisTuple
-            self.ids.rv_transactions = [{'text': str(x)} for x in range(10)]
-            print("I RAN")
+            mycursor.close()
+#            self.data = thisTuple      WE ARE FAILING HERE
+#            self.ids.rv_transactions = [{'text': str(x)} for x in range(10)]
+#            print("I RAN")
 
-            #for row in thisTuple:
-            #    self.transID_items.append(row[0])
-            #    self.numcode_items.append(row[1])
-            #    self.date_items.append(row[2])
-            #    self.transdesc_items.append(row[3])
-            #    self.payfee_items.append(row[4])
-            #    self.cleared_items.append(row[5])
-            #    self.depref_items.append(row[6])
-            #    self.balance_items.append(row[7])
+#            for row in thisTuple:
+#                self.transID_items.append(row[0])
+#                self.numcode_items.append(row[1])
+#                self.date_items.append(row[2])
+#                self.transdesc_items.append(row[3])
+#                self.payfee_items.append(row[4])
+#                self.cleared_items.append(row[5])
+#                self.depref_items.append(row[6])
+#                self.balance_items.append(row[7])
 
         except Exception as e:
             print(e)
