@@ -1,19 +1,25 @@
 import re
 from kivy.app import App
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, ListProperty
+from kivy.properties import BooleanProperty
+
 from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.dropdown import DropDown
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recyclegridlayout import RecycleGridLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
-from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.lang import Builder
+
 import mysql.connector
 from mysql.connector import errorcode
-from kivy.properties import ObjectProperty, ListProperty
-from kivy.uix.textinput import TextInput
-from kivy.properties import BooleanProperty
+
 
 
 
@@ -44,7 +50,8 @@ class StartScreen(Screen):
         else:
             print(err)
     try:
-        mycursor.execute("CREATE TABLE dbtransactions.tblTransactions (transID int NOT NULL AUTO_INCREMENT, numcode VARCHAR(10), date DATETIME, transdescr VARCHAR(255), payfee DECIMAL(15,2), cleared TINYINT(1), depref DECIMAL(15,2), balance DECIMAL(15,2), PRIMARY KEY (transID))")
+        mycursor.execute("CREATE TABLE dbtransactions.tblTransactions (transID int NOT NULL AUTO_INCREMENT, numcode VARCHAR(10), date DATE, transdescr VARCHAR(255), payfee DECIMAL(15,2), cleared TINYINT(1), depref DECIMAL(15,2), balance DECIMAL(15,2), PRIMARY KEY (transID))")
+
     except Exception as e:
         print(e)
     try:
@@ -194,21 +201,29 @@ class LoginScreen(Screen):
 
 
 class TransactionScreen(Screen):
-#    def insertDummyTransactions(self):
-#        try:
-#            mydb = mysql.connector.connect(host="localhost", user="general", password="dbms_532021!")
-#            mycursor = mydb.cursor()
-
-#            sqlQuery = "INSERT INTO dbtransactions.tblTransactions (numcode, date, transdescr, payfee, cleared, depref, balance) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-
-#            data_transaction = ('atm', '2021-1-1', 'testing_starting balance', '0', '1', '0', '1000')
-#            mycursor.execute(sqlQuery, data_transaction)
-
-#            mydb.commit()
-#            print("transaction added?")
-#        except Exception as e:
-#            print(e)
     pass
+
+class AddScreen(Screen):
+    atsErrorLabel = ObjectProperty(None)
+    btnAddNewTransaction = ObjectProperty(None)
+
+    def btnAddNewTransaction(self):
+            if self.checkInputNulls() is False:
+                self.atsErrorLabel.text = "Please enter an amount"
+                self.atsErrorLabel.color = 1, 0, 0, 1
+                print("I am here")
+                return 0
+            elif self.verifyType() is False:
+                print('Add label here for error')
+            else:
+                return 1
+
+    def checkInputNulls(self):
+        if self.txtAmount.text != '':
+            return True
+        else:
+            return False
+
 
 class EditScreen(Screen):
     pass
@@ -222,22 +237,35 @@ class SelectableRecycleGridLayout(FocusBehavior, LayoutSelectionBehavior, Recycl
     pass
 
 class SelectableLabel(RecycleDataViewBehavior, Label):
-    pass
+
+    def refresh_view_layout(self, rv, index, layout, viewport):
+        mod = index % 8
+        if mod == 0:
+            layout['size_hint'] = (0, 0.1)
+        elif mod == 1:
+            layout['size_hint'] = (0.2, 0.1)
+        elif mod == 2:
+            layout['size_hint'] = (0.15, 0.1)
+        elif mod == 3:
+            layout['size_hint'] = (0.35, 0.1)
+        elif mod == 4:
+            layout['size_hint'] = (0.3, 0.1)
+        elif mod == 5:
+            layout['size_hint'] = (0.25, 0.1)
+        elif mod == 6:
+            layout['size_hint'] = (0.2, 0.1)
+        elif mod == 7:
+            layout['size_hint'] = (0.3, 0.1)
+        super(SelectableLabel, self).refresh_view_layout(rv, index, layout, viewport)
+
 
 class RV(RecycleView):
-    transID_items = ListProperty([])
-    numcode_items = ListProperty([])
-    date_items = ListProperty([])
-    transdesc_items = ListProperty([])
-    payfee_items = ListProperty([])
-    cleared_items = ListProperty([])
-    depref_items = ListProperty([])
-    balance_items = ListProperty([])
+    data_items = ListProperty([])
 
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
         self.getTransactions()
-        #self.data = [{'text': str(x)} for x in range(10)]
+
 
     def getTransactions(self):
         try:
@@ -248,22 +276,12 @@ class RV(RecycleView):
 
             mycursor.execute(sqlQuery)
 
-            thisTuple = mycursor.fetchall()
+            rows = mycursor.fetchall()
 
-            mycursor.close()
-#            self.data = thisTuple      WE ARE FAILING HERE
-#            self.ids.rv_transactions = [{'text': str(x)} for x in range(10)]
-#            print("I RAN")
+            for row in rows:
+                for col in row:
+                    self.data_items.append(col)
 
-#            for row in thisTuple:
-#                self.transID_items.append(row[0])
-#                self.numcode_items.append(row[1])
-#                self.date_items.append(row[2])
-#                self.transdesc_items.append(row[3])
-#                self.payfee_items.append(row[4])
-#                self.cleared_items.append(row[5])
-#                self.depref_items.append(row[6])
-#                self.balance_items.append(row[7])
 
         except Exception as e:
             print(e)
@@ -280,7 +298,20 @@ class PinInput(TextInput):
         return super(PinInput, self).insert_text(s, from_undo=from_undo)
 
 
-#kv = Builder.load_file("my.kv")
+class AmountInput(TextInput):
+    pat = re.compile('[^0-9]')
+    def insert_text(self, substring, from_undo=False):
+        pat = self.pat
+        if '.' in self.text:
+            s = re.sub(pat, '', substring)
+        else:
+            s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
+        return super(AmountInput, self).insert_text(s, from_undo=from_undo)
+
+
+class CustomDropDown(DropDown):
+    pass
+
 
 
 class MyApp(App):

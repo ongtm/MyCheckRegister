@@ -3,6 +3,7 @@ WindowManager:
     LoginScreen:
     NewUserScreen:
     TransactionScreen:
+    AddScreen:
     EditScreen:
 
 <Button>
@@ -13,6 +14,9 @@ WindowManager:
 
 <PinInput>
     size_hint:.2, .1
+
+<AmountInput>
+    size_hint:.16,.05
 
 
 <Label>
@@ -35,6 +39,16 @@ WindowManager:
 
 <BackgroundLabel@Label+BackgroundColor>
     background_color:0,0,0,1
+
+<CustomDropDown>
+    size_hint:.16,.1
+    Button:
+        text:"Payment or Fee"
+        on_release:dropdown.select("Payment/Fee")
+    Button:
+        text:"Deposit or Credit"
+        on_release:dropdown.select("Deposit/Credit")
+
 
 <StartScreen>:
     name:"start"
@@ -161,16 +175,9 @@ WindowManager:
                 app.root.current = "start"
                 root.manager.transition.direction = "right"
 
-#<SelectableLabel>:
-#    canvas:before:
-#        Color:
-#            rbga: (.0, 0.9, 0.1, 0.3) if self.selected else (0, 0, 0, 1)
-#        Rectangle:
-#            pos: self.pos
-#            size: self.size
-
 <RV>:
     viewclass:'SelectableLabel'
+    data:[{'text' : str(x)} for x in root.data_items]
     SelectableRecycleGridLayout:
         cols: 8
         default_size: None, dp(26)
@@ -179,9 +186,10 @@ WindowManager:
         multiselect: True
         touch_multiselect: True
 
+
 <TransactionScreen>:
     name:"transactions"
-    rv_transactions:rv_transactions
+    #rv_transactions:rv_transactions
 
     BoxLayout:
         orientation:'vertical'
@@ -194,7 +202,6 @@ WindowManager:
                 text:"NUMBER/CODE"
                 size_hint:.2,.1
                 font_size:12
-
 
             TransactionLabel:
                 text:"DATE"
@@ -229,8 +236,6 @@ WindowManager:
         BoxLayout:
             size_hint:1,1
             RV:
-                id:rv_transactions
-
 
         BoxLayout:
             size_hint:1,1
@@ -239,6 +244,9 @@ WindowManager:
                 id:btnNew
                 text:"New Transaction"
                 size_hint:.2,.2
+                on_release:
+                    app.root.current = 'add'
+                    root.manager.transition.direction = "down"
 
             Button:
                 id:btnEdit
@@ -260,6 +268,88 @@ WindowManager:
                 on_release:
                     app.root.current = "login"
                     root.manager.transition.direction = "right"
+
+<AddScreen>
+    name:"add"
+    btnAddNewTransaction:btnAddNewTransaction
+
+    FloatLayout:
+        Label:
+            pos_hint:{'x':.3, 'y':.85}
+            size_hint: .16,.05
+            text:"Check Number/Transaction Code"
+        Label:
+            pos_hint:{'x':.3, 'y':.75}
+            size_hint: .16,.05
+            text:"Transaction Date"
+        Label:
+            pos_hint:{'x':.3, 'y':.65}
+            size_hint: .16,.05
+            text:"Transaction Description"
+        Label:
+            pos_hint:{'x':.3, 'y':.55}
+            size_hint: .16,.05
+            text:"Payment/Fee OR Deposit/Refund"
+        Label:
+            pos_hint:{'x':.3, 'y':.45}
+            size_hint: .16,.05
+            text:"Amount"
+        Label:
+            pos_hint:{'x':.3, 'y':.35}
+            size_hint: .16,.05
+            text:"Cleared"
+
+        TextInput:
+            pos_hint:{'x':.7, 'y':.85}
+            size_hint: .16,.05
+            id:txtNumCode
+        TextInput:
+            pos_hint:{'x':.7, 'y':.75}
+            size_hint: .16,.05
+            id:txtTransDate
+        TextInput:
+            pos_hint:{'x':.7, 'y':.65}
+            size_hint: .16,.05
+            id:txtTransDescription
+        #CustomDropDown:
+        #    pos_hint:{'x':.7, 'y':.55}
+        #    #size_hint: .16,05
+
+        AmountInput:
+            pos_hint:{'x':.7, 'y':.45}
+            size_hint: .16,.05
+            id:txtAmount
+            multiline:False
+
+        CheckBox:
+            pos_hint:{'x':.7, 'y':.35}
+            size_hint: .16,.05
+            id:chkCleared
+
+        Button:
+            text:"Cancel"
+            pos_hint:{'x':.1, 'y':.15}
+            size_hint:.2,.1
+            id:btnCancel
+            on_release:
+                app.root.current="transactions"
+                root.manager.transition.direction = "up"
+
+        Button:
+            text:"Add Transaction"
+            pos_hint:{'x':.7, 'y':.15}
+            size_hint:.2,.1
+            id:btnAddNewTransaction
+            root:btnAddNewTransaction
+
+        Label:
+            id:atsErrorLabel
+            color:0,0,0,1
+            text:"Error Message Here"
+            pos_hint:{'x':.4, 'y':.15}
+            halign:'center'
+            valign:'middle'
+
 
 
 <EditScreen>
